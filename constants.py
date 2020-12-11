@@ -5,6 +5,7 @@ from enum import Enum as _Enum
 ASKING_TIME = int(os.environ.get('ASKING_TIME', 30))
 ANSWER_TIME = int(os.environ.get('ANSWER_TIME', 10))
 BED_TIME    = int(os.environ.get('BED_TIME'   , 60))
+CHECK_TIME  = int(os.environ.get('CHECK_TIME' , 5))
 DB_FILE = os.environ.get('DB_FILE', 'meencuentrobien.db')
 
 class Status(_Enum):
@@ -17,7 +18,7 @@ asking_texts = [
     "¿Como estás?",
     "¿Que tal estás?",
     "¿Que tal andas?",
-    "¿Como llevas el día",
+    "¿Como llevas el día?",
     "¿Que tal vas?",
 ]
 

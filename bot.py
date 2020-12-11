@@ -11,7 +11,7 @@ from persistence_with_sqlite import *
 
 # Enable logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 
 logger = logging.getLogger(__name__)
@@ -86,20 +86,26 @@ def bye(update: Update, context: CallbackContext) -> None:
     remove(update.effective_message.chat_id, update.effective_message.from_user.username)
     update.effective_message.reply_text('Te has dado de baja del sistema')
 
+def start(update: Update, context: CallbackContext) -> None:
+    logger.info("help command received: " + update.effective_message.text)
+    update.effective_message.reply_text('''Usa "/supervisar" para darte de alta como supervisor
+Usa "/vigilame USUARIO" para recibir preguntas sobre como estás de ven en cuando. Si no respondes se avisará al USUARIO.
+El USUARIO tiene que estar dado de alta como supervisor
+Usa "/adios" para darte de baja completamente del sistema''')
+
 logger.info("ASKING_TIME: " + str(ASKING_TIME))
 logger.info("ANSWER_TIME: " + str(ANSWER_TIME))
 logger.info("BED_TIME: " + str(BED_TIME))
+logger.info("CHECK_TIME: " + str(CHECK_TIME))
 logger.info("DB_FILE: " + DB_FILE)
 
 updater = Updater(os.environ['TELEGRAM_TOKEN'])
-updater.dispatcher.add_handler(CommandHandler('supervise', supervise))
-updater.dispatcher.add_handler(CommandHandler('supervisar', supervise))
-updater.dispatcher.add_handler(CommandHandler('watchme', watchme))
-updater.dispatcher.add_handler(CommandHandler('vigilame', watchme))
-updater.dispatcher.add_handler(CommandHandler('bye', bye))
-updater.dispatcher.add_handler(CommandHandler('adios', bye))
+updater.dispatcher.add_handler(CommandHandler(['start','help'], start))
+updater.dispatcher.add_handler(CommandHandler(['supervise','supervisar'], supervise))
+updater.dispatcher.add_handler(CommandHandler(['watchme','vigilame'], watchme))
+updater.dispatcher.add_handler(CommandHandler(['bye','adios'], bye))
 echo_handler = MessageHandler(Filters.text & (~Filters.command), message_received)
 updater.dispatcher.add_handler(echo_handler)
-updater.job_queue.run_repeating(check,5)
+updater.job_queue.run_repeating(check, CHECK_TIME)
 updater.start_polling()
 updater.idle()
