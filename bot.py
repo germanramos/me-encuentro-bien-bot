@@ -1,3 +1,4 @@
+import random
 import os
 import logging
 
@@ -15,16 +16,19 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+def getRandomText(texts):
+    return texts[random.randint(0, len(texts)-1)]
+
 def message_received(update, context):
     logger.info("message_received: " + update.effective_message.text)
     chat_id=update.effective_chat.id
     if personExists(chat_id):
         if update.effective_message.text.strip().lower() == "buenas noches":
             updatePerson(chat_id, Status.DURMIENDO)
-            context.bot.send_message(chat_id=chat_id, text="Buenas noches, que tengas felices sueños")
+            context.bot.send_message(chat_id=chat_id, text=getRandomText(night_texts))
         else:
             updatePerson(chat_id, Status.ESPERANDO_A_HACER_PING)
-            context.bot.send_message(chat_id=chat_id, text="Me alegro de que estes bien")
+            context.bot.send_message(chat_id=chat_id, text=getRandomText(answer_texts))
     else:
         context.bot.send_message(chat_id=chat_id, text="Parece que no estás dado de alta")
 
@@ -36,7 +40,7 @@ def check(context):
         if p["status"] == Status.ESPERANDO_A_HACER_PING:
             if elapsed > ASKING_TIME:
                 logger.info("Preguntar que tal")
-                context.bot.send_message(chat_id=chat_id, text="¿Como estas?")
+                context.bot.send_message(chat_id=chat_id, text=getRandomText(asking_texts))
                 updatePerson(chat_id, Status.ESPERANDO_RESPUESTA)
             else:
                 logger.info("Esperando para preguntar. No hacer nada")
@@ -58,7 +62,7 @@ def check(context):
         elif p["status"] == Status.DURMIENDO:
             if elapsed > BED_TIME:
                 logger.info("Dar buenos dias y preguntar que tal has dormido")
-                context.bot.send_message(chat_id=chat_id, text="Buenos días, ¿Qué tal has dormido?")
+                context.bot.send_message(chat_id=chat_id, text=getRandomText(morning_texts))
                 updatePerson(chat_id, Status.ESPERANDO_RESPUESTA)
             else:
                 logger.info("Esperando para dar los buenos días. No hacer nada")

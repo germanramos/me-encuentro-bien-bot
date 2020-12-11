@@ -12,3 +12,34 @@ class Status(_Enum):
     ESPERANDO_RESPUESTA = 2
     ALARMA_ENVIADA = 3
     DURMIENDO = 4
+    
+asking_texts = [
+    "¿Como estás?",
+    "¿Que tal estás?",
+    "¿Que tal andas?",
+    "¿Como llevas el día",
+    "¿Que tal vas?",
+]
+
+morning_texts = [
+    "Buenos días, ¿Qué tal has dormido?",
+    "Buenos días, ya es hora de despertar"
+    "¡A despertar! Que pases un día estupendo"
+    "¡Hola! Que pases un feliz día!"
+]
+
+night_texts = [
+    "Buenas noches, que tengas felices sueños",
+    "Espero que duermas muy bien",
+    "Buenas noches, a contar ovejitas!"
+    "Camino de la cama, es el mejor camino ;-)"
+]
+
+answer_texts = [
+    "Me alegro de que estes bien",
+    "Ok",
+    "Entiendo",
+    "Vale",
+    "Tomo nota",
+    "Me quedo mas tranquilo"
+]
