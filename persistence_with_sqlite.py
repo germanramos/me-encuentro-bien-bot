@@ -2,9 +2,9 @@ from datetime import datetime
 
 import sqlite3 as _sqlite3
 
-from constants import Status
+from constants import Status, DB_FILE
 
-_con = _sqlite3.connect('database.db')
+_con = _sqlite3.connect(DB_FILE)
 _cursorObj = _con.cursor()
 _cursorObj.execute("CREATE TABLE IF NOT EXISTS people(chat_id integer PRIMARY KEY, time date, status integer, name text, supervisor text)")
 _con.commit()
@@ -13,7 +13,7 @@ _con.commit()
 _con.close()
 
 def getConnection():
-    con = _sqlite3.connect('database.db')
+    con = _sqlite3.connect(DB_FILE)
     cursor = con.cursor()
     return con, cursor
 

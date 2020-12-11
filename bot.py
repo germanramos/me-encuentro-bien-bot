@@ -21,7 +21,7 @@ def message_received(update, context):
     if personExists(chat_id):
         if update.effective_message.text.strip().lower() == "buenas noches":
             updatePerson(chat_id, Status.DURMIENDO)
-            context.bot.send_message(chat_id=chat_id, text="Buenas noches")
+            context.bot.send_message(chat_id=chat_id, text="Buenas noches, que tengas felices sueños")
         else:
             updatePerson(chat_id, Status.ESPERANDO_A_HACER_PING)
             context.bot.send_message(chat_id=chat_id, text="Me alegro de que estes bien")
@@ -82,6 +82,10 @@ def bye(update: Update, context: CallbackContext) -> None:
     remove(update.effective_message.chat_id, update.effective_message.from_user.username)
     update.effective_message.reply_text('Te has dado de baja del sistema')
 
+logger.info("ASKING_TIME: " + str(ASKING_TIME))
+logger.info("ANSWER_TIME: " + str(ANSWER_TIME))
+logger.info("BED_TIME: " + str(BED_TIME))
+logger.info("DB_FILE: " + DB_FILE)
 
 updater = Updater(os.environ['TELEGRAM_TOKEN'])
 updater.dispatcher.add_handler(CommandHandler('supervise', supervise))

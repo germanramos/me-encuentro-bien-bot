@@ -1,0 +1,13 @@
+version: '3'
+
+services:  
+  meencuentrobien:
+    image: germanramos/meencuentrobien
+    restart: unless-stopped
+    env_file:
+      - ../meencuentrobien.sh
+    volumes:
+      - meencuentrobien:/data
+
+volumes:
+  meencuentrobien:
