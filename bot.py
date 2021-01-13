@@ -1,6 +1,7 @@
 import random
 import os
 import logging
+import json
 
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
@@ -20,12 +21,21 @@ def getRandomText(texts):
     return texts[random.randint(0, len(texts)-1)]
 
 def message_received(update, context):
-    logger.info("message_received: " + update.effective_message.text)
+    text = update.effective_message.text
+    ctext = update.effective_message.text.strip().lower()
     chat_id=update.effective_chat.id
-    if personExists(chat_id):
-        if update.effective_message.text.strip().lower() == "buenas noches":
+    p = getPerson(chat_id)
+    logger.info(f"Message received from {p['name'] if p else 'Desconocido'}: {text}")
+    if p:
+        if p["status"] == Status.ALARMA_ENVIADA:
+            supervisorChatId = getSupervisorChatId(p["supervisor"])
+            context.bot.send_message(supervisorChatId, text=f"Parece que {p['name']} está bien y dice: {text}")
+        if "noche" in ctext or "dormir" in ctext:
             updatePerson(chat_id, Status.DURMIENDO)
             context.bot.send_message(chat_id=chat_id, text=getRandomText(night_texts))
+        elif any([i in ctext for i in ["bañar","duchar","comprar","perro","pasear","rufo","sacar"]]):
+            updatePerson(chat_id, Status.ESPERANDO_A_HACER_PING, ASKING_TIME - SHOWER_TIME)
+            context.bot.send_message(chat_id=chat_id, text=getRandomText(answer_texts))
         else:
             updatePerson(chat_id, Status.ESPERANDO_A_HACER_PING)
             context.bot.send_message(chat_id=chat_id, text=getRandomText(answer_texts))
@@ -36,7 +46,7 @@ def check(context):
     for p in getAllPeople():
         chat_id = p["chat_id"]
         elapsed = (datetime.now() - p["time"]).total_seconds()
-        logger.info(f"Elapsed {int(elapsed)} seconds")
+        logger.info(f"Vigilando usuario: {p['name']}, status: {p['status']}, elapsed: {elapsed}")
         if p["status"] == Status.ESPERANDO_A_HACER_PING:
             if elapsed > ASKING_TIME:
                 logger.info("Preguntar que tal")
@@ -47,7 +57,7 @@ def check(context):
         elif p["status"] == Status.ESPERANDO_RESPUESTA:
             if elapsed > ANSWER_TIME:
                 logger.info("Enviar alarma")
-                context.bot.send_message(chat_id=chat_id, text="Como no respondes voy a avisar a tu supervisor " + p["supervisor"])
+                context.bot.send_message(chat_id=chat_id, text="Como no respondes he avisado a tu supervisor " + p["supervisor"])
                 supervisorChatId = getSupervisorChatId(p["supervisor"])
                 if supervisorChatId:
                     context.bot.send_message(supervisorChatId, text=f"¡Atención! {p['name']} no responde y puede que necesite ayuda")
@@ -86,6 +96,13 @@ def bye(update: Update, context: CallbackContext) -> None:
     remove(update.effective_message.chat_id, update.effective_message.from_user.username)
     update.effective_message.reply_text('Te has dado de baja del sistema')
 
+def status(update: Update, context: CallbackContext) -> None:
+    logger.info("status command received")
+    p = getAllPeople()
+    print(p)
+    #p["time"] = str(p["time"])
+    update.effective_message.reply_text(json.dumps(p, indent=4, sort_keys=True, default=str))
+
 def start(update: Update, context: CallbackContext) -> None:
     logger.info("help command received: " + update.effective_message.text)
     update.effective_message.reply_text('''Usa "/supervisar" para darte de alta como supervisor
@@ -104,6 +121,7 @@ updater.dispatcher.add_handler(CommandHandler(['start','help'], start))
 updater.dispatcher.add_handler(CommandHandler(['supervise','supervisar'], supervise))
 updater.dispatcher.add_handler(CommandHandler(['watchme','vigilame'], watchme))
 updater.dispatcher.add_handler(CommandHandler(['bye','adios'], bye))
+updater.dispatcher.add_handler(CommandHandler(['status','estado'], status))
 echo_handler = MessageHandler(Filters.text & (~Filters.command), message_received)
 updater.dispatcher.add_handler(echo_handler)
 updater.job_queue.run_repeating(check, CHECK_TIME)

@@ -3,6 +3,7 @@ from enum import Enum as _Enum
 
 # all in seconds
 ASKING_TIME = int(os.environ.get('ASKING_TIME', 30))
+SHOWER_TIME = int(os.environ.get('SHOWER_TIME', ASKING_TIME/5 ))
 ANSWER_TIME = int(os.environ.get('ANSWER_TIME', 10))
 BED_TIME    = int(os.environ.get('BED_TIME'   , 60))
 CHECK_TIME  = int(os.environ.get('CHECK_TIME' , 5))
