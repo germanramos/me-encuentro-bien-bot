@@ -2,7 +2,7 @@ version: '3'
 
 services:  
   meencuentrobien:
-    image: germanramos/meencuentrobien
+    image: germanramos/meencuentrobien:latest
     restart: unless-stopped
     env_file:
       - ../meencuentrobien.sh
