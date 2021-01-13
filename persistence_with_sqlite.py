@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+import logging
 
 import sqlite3 as _sqlite3
 
@@ -12,6 +13,8 @@ _cursorObj.execute("CREATE TABLE IF NOT EXISTS supervisors(username text PRIMARY
 _con.commit()
 _con.close()
 
+logger = logging.getLogger(__name__)
+
 def getConnection():
     con = _sqlite3.connect(DB_FILE)
     cursor = con.cursor()
@@ -24,19 +27,20 @@ def createPerson(chat_id, name, supervisor):
     con.commit()
     con.close()
 
-def updatePerson(chat_id, status):
+def updatePerson(chat_id, status, delta=0):
+    logger.info(f"Change status to: {status}" )
     con, cursor = getConnection()
-    entities = (datetime.now(), status.value, chat_id)
+    entities = (datetime.now() - timedelta(seconds=delta), status.value, chat_id)
     cursor.execute('''UPDATE people SET time=?, status=? WHERE chat_id=?''', entities)
     con.commit()
     con.close()
 
-def personExists(chat_id):
+def getPerson(chat_id):
     con, cursor = getConnection()
-    cursor.execute(f"SELECT chat_id FROM people WHERE chat_id={chat_id}")
-    rows = cursor.fetchall()
+    cursor.execute(f"SELECT * FROM people WHERE chat_id={chat_id}")
+    r = cursor.fetchone()
     con.close()
-    return len(rows) > 0
+    return {"chat_id": r[0], "time": datetime.fromisoformat(r[1]), "status": Status(r[2]), "name": r[3], "supervisor": r[4]}
 
 def getAllPeople():
     con, cursor = getConnection()
