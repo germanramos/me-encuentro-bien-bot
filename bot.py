@@ -30,7 +30,7 @@ def message_received(update, context):
         if p["status"] == Status.ALARMA_ENVIADA:
             supervisorChatId = getSupervisorChatId(p["supervisor"])
             context.bot.send_message(supervisorChatId, text=f"Parece que {p['name']} está bien y dice: {text}")
-        if "noches" in ctext or "dormir" in ctext:
+        if "noche" in ctext or "dormir" in ctext:
             updatePerson(chat_id, Status.DURMIENDO)
             context.bot.send_message(chat_id=chat_id, text=getRandomText(night_texts))
         elif any([i in ctext for i in ["bañar","duchar","comprar","perro","pasear","rufo","sacar"]]):
@@ -57,7 +57,7 @@ def check(context):
         elif p["status"] == Status.ESPERANDO_RESPUESTA:
             if elapsed > ANSWER_TIME:
                 logger.info("Enviar alarma")
-                context.bot.send_message(chat_id=chat_id, text="Como no respondes voy a avisar a tu supervisor " + p["supervisor"])
+                context.bot.send_message(chat_id=chat_id, text="Como no respondes he avisado a tu supervisor " + p["supervisor"])
                 supervisorChatId = getSupervisorChatId(p["supervisor"])
                 if supervisorChatId:
                     context.bot.send_message(supervisorChatId, text=f"¡Atención! {p['name']} no responde y puede que necesite ayuda")
